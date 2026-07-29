@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+FRA<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -241,7 +241,7 @@
 
   <div class="panel">
     <h1>KISI Foreign Lens</h1>
-    <div class="tagline">Generator otomatis — upload 2 file, gambar langsung update</div>
+    <div class="tagline">Generator otomatis — upload 3 file, gambar langsung update</div>
 
     <div class="field">
       <label>1. File Shares Net Buy/Sell (.TXT)</label>
@@ -261,6 +261,16 @@
         <div class="dz-filename" id="csv-filename"></div>
       </div>
       <input type="file" id="file-csv" accept=".csv">
+    </div>
+
+    <div class="field">
+      <label>3. File Trading Summary by Investor Type (.TXT)</label>
+      <div class="dropzone" id="dz-in">
+        <div class="dz-icon">📈</div>
+        <div class="dz-text">Klik atau drag file IN*.TXT ke sini</div>
+        <div class="dz-filename" id="in-filename"></div>
+      </div>
+      <input type="file" id="file-in" accept=".txt">
     </div>
 
     <div class="field">
@@ -286,7 +296,7 @@
     <button class="btn btn-primary" id="btnGenerate" disabled>Generate Gambar</button>
     <button class="btn btn-download" id="btnDownload" disabled>⬇ Download PNG</button>
 
-    <div class="status" id="status">Upload kedua file untuk mulai.</div>
+    <div class="status" id="status">Upload ketiga file untuk mulai.</div>
   </div>
 
   <div class="preview-wrap">
@@ -359,7 +369,8 @@
 
 <script>
 /* ---------------- state ---------------- */
-let fiText = null, csvText = null, fiFileName = "", csvFileName = "";
+let fiText = null, csvText = null, inText = null;
+let fiFileName = "", csvFileName = "", inFileName = "";
 let lastDataset = null;
 
 const BULAN_ID = ["", "Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -437,6 +448,31 @@ function parseTopSummary(text) {
   return lookup;
 }
 
+/* "Daily Trading Summary by Investor Type" (IN*.TXT):
+   columns are always Foreign Investor | Domestic Investor | Total, in that order.
+   We only need the Foreign Investor Value under BUY and under Sell. */
+function parseInvestorSummary(text) {
+  const lines = text.split(/\r?\n/);
+  let mode = null;
+  let foreignBuyValue = null, foreignSellValue = null;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (/^BUY\b/i.test(line)) { mode = 'buy'; continue; }
+    if (/^Sell\b/i.test(line)) { mode = 'sell'; continue; }
+    if (/^Change\b/i.test(line)) { mode = 'change'; continue; }
+    if (/^Value\b/i.test(line) && (mode === 'buy' || mode === 'sell')) {
+      const nums = line.match(/-?[\d,]+/g);
+      if (nums && nums.length) {
+        const foreignVal = parseFloat(nums[0].replace(/,/g,'')) || 0;
+        if (mode === 'buy') foreignBuyValue = foreignVal;
+        else foreignSellValue = foreignVal;
+      }
+    }
+  }
+  return { foreignBuyValue, foreignSellValue };
+}
+
 function guessDisplayDate(reportDateStr) {
   if (!reportDateStr) return "";
   const m = reportDateStr.match(/([A-Za-z]+)\s+(\d{1,2}),\s+(\d{4})/);
@@ -493,11 +529,12 @@ function rowsHtml(rows, isBuy, topN) {
 }
 
 function render() {
-  if (!fiText || !csvText) return;
+  if (!fiText || !csvText || !inText) return;
 
   const fiParsed = parseFI(fiText);
   const priceLookup = parseTopSummary(csvText);
   const data = buildDataset(fiParsed, priceLookup);
+  const investorSummary = parseInvestorSummary(inText);
   lastDataset = data;
 
   const topN = Math.max(1, parseInt(document.getElementById('topN').value, 10) || 20);
@@ -511,15 +548,22 @@ function render() {
   document.getElementById('outSession').textContent = session;
   document.getElementById('outDate').textContent = displayDateInput;
 
-  document.getElementById('outBuyValue').textContent = fmtRupiah(data.totals.buyValue);
-  document.getElementById('outSellValue').textContent = (data.totals.sellValue > 0 ? "-" : "") + fmtRupiah(data.totals.sellValue);
+  // Buy/Sell/Net Value cards now come straight from the Trading Summary by Investor Type file
+  const statusEl = document.getElementById('status');
+  const missingSummary = investorSummary.foreignBuyValue === null || investorSummary.foreignSellValue === null;
+  const buyValue = investorSummary.foreignBuyValue ?? 0;
+  const sellValue = investorSummary.foreignSellValue ?? 0;
+  const netValue = buyValue - sellValue;
+
+  document.getElementById('outBuyValue').textContent = fmtRupiah(buyValue);
+  document.getElementById('outSellValue').textContent = (sellValue > 0 ? "-" : "") + fmtRupiah(sellValue);
 
   const netEl = document.getElementById('outNetValue');
   const netIcon = document.getElementById('netIcon');
-  netEl.textContent = fmtRupiah(data.totals.netValue);
+  netEl.textContent = fmtRupiah(netValue);
   netEl.classList.remove('pos','neg');
   netIcon.classList.remove('pos');
-  if (data.totals.netValue >= 0) {
+  if (netValue >= 0) {
     netEl.classList.add('pos'); netIcon.classList.add('pos');
     netIcon.innerHTML = '&#8599;'; // up arrow, matches Buy Value icon
   } else {
@@ -542,10 +586,12 @@ function render() {
   document.getElementById('posterScale').style.marginBottom = (poster.offsetHeight * (scale - 1)) + 'px';
 
   // status
-  const statusEl = document.getElementById('status');
   let html = `<span class="ok">✓ Berhasil digenerate.</span><br>Buy list: ${data.buyRows.length} kode, Sell list: ${data.sellRows.length} kode.`;
   if (data.unmatched.length) {
     html += `<br><span class="warn">⚠ ${data.unmatched.length} kode tidak ketemu di Top Summary (dilewati): ${data.unmatched.join(', ')}</span>`;
+  }
+  if (missingSummary) {
+    html += `<br><span class="err">⚠ Baris Foreign Buy/Sell Value tidak ketemu di file Trading Summary, cek formatnya.</span>`;
   }
   statusEl.innerHTML = html;
 }
@@ -600,13 +646,14 @@ function setupDropzone(dzId, inputId, onLoaded, filenameElId, accept) {
 }
 
 function maybeEnableGenerate() {
-  const ready = fiText && csvText;
+  const ready = fiText && csvText && inText;
   document.getElementById('btnGenerate').disabled = !ready;
   if (ready) render();
 }
 
 setupDropzone('dz-fi', 'file-fi', (text, name) => { fiText = text; fiFileName = name; }, 'fi-filename');
 setupDropzone('dz-csv', 'file-csv', (text, name) => { csvText = text; csvFileName = name; }, 'csv-filename');
+setupDropzone('dz-in', 'file-in', (text, name) => { inText = text; inFileName = name; }, 'in-filename');
 
 document.getElementById('btnGenerate').addEventListener('click', render);
 document.getElementById('session').addEventListener('change', render);
