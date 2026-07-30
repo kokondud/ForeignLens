@@ -1,4 +1,4 @@
-FRA<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -38,19 +38,20 @@ FRA<!DOCTYPE html>
     --muted: #7fa892;
   }
   * { box-sizing: border-box; }
-  body {
+  html, body {
     margin: 0;
+    height: 100%;
     font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
   }
-  .app { display: flex; min-height: 100vh; }
+  .app { display: flex; height: 100vh; overflow: hidden; }
 
   /* ---------- Left control panel ---------- */
   .panel {
     width: 360px;
     flex-shrink: 0;
+    height: 100vh;
     background: var(--panel);
     border-right: 1px solid var(--panel-border);
     padding: 26px 22px;
@@ -146,6 +147,7 @@ FRA<!DOCTYPE html>
   /* ---------- Right preview area ---------- */
   .preview-wrap {
     flex: 1;
+    height: 100vh;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -175,16 +177,16 @@ FRA<!DOCTYPE html>
     background: radial-gradient(circle, rgba(231,76,60,0.28) 0%, rgba(231,76,60,0) 70%); pointer-events:none; }
   .bg-glow-bl { position:absolute; bottom:-140px; left:-160px; width:520px; height:520px;
     background: radial-gradient(circle, rgba(46,204,113,0.25) 0%, rgba(46,204,113,0) 70%); pointer-events:none; }
-  .poster-wrap { position: relative; padding: 46px 46px 34px; z-index: 2; }
+  .poster-wrap { position: relative; padding: 62px 46px 60px; z-index: 2; }
 
   .brand { text-align: center; margin-bottom: 6px; }
   .brand-logo { height: 46px; width: auto; }
 
-  .p-title { text-align:center; font-size: 46px; font-weight: 900; color: #ffffff; margin: 22px 0 6px; }
-  .p-subtitle { text-align:center; font-size: 20px; color: #bfe8cf; margin-bottom: 30px; }
+  .p-title { text-align:center; font-size: 46px; font-weight: 900; color: #ffffff; margin: 30px 0 6px; }
+  .p-subtitle { text-align:center; font-size: 20px; color: #bfe8cf; margin-bottom: 46px; }
   .p-subtitle .dot { color: #3fae78; margin: 0 8px; }
 
-  .stats { display:flex; gap: 16px; border: 1px solid rgba(63,174,120,0.35); border-radius: 18px; padding: 20px 10px; margin-bottom: 30px; background: rgba(10,40,26,0.35); }
+  .stats { display:flex; gap: 16px; border: 1px solid rgba(63,174,120,0.35); border-radius: 18px; padding: 28px 10px; margin-bottom: 42px; background: rgba(10,40,26,0.35); }
   .stat { flex:1; display:flex; align-items:center; gap: 14px; padding: 0 14px; }
   .stat + .stat { border-left: 1px solid rgba(255,255,255,0.08); }
   .stat-icon { width: 46px; height: 46px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size: 20px; flex-shrink:0; }
@@ -205,15 +207,15 @@ FRA<!DOCTYPE html>
   .col-title { font-size: 16px; font-weight: 800; }
   .col-title.buy { color: #4fd98b; }
   .col-title.sell { color: #f16354; }
-  .col-subtitle { font-size: 10.5px; color: #8fbaa0; font-style: italic; margin-bottom: 10px; }
+  .col-subtitle { font-size: 10.5px; color: #8fbaa0; font-style: italic; margin-bottom: 14px; }
 
-  .row-head { display:flex; font-size: 11px; color: #8fbaa0; padding: 5px 2px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 3px; }
+  .row-head { display:flex; font-size: 11px; color: #8fbaa0; padding: 5px 2px 12px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 3px; }
   .row-head span:nth-child(1) { width: 20%; }
   .row-head span:nth-child(2) { width: 24%; }
   .row-head span:nth-child(3) { width: 26%; }
   .row-head span:nth-child(4) { width: 30%; text-align:right; }
 
-  .data-row { display:flex; align-items:center; padding: 6px 2px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.045); }
+  .data-row { display:flex; align-items:center; padding: 10px 2px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.045); }
   .data-row .code { width: 20%; font-weight: 700; color: #ffffff; }
   .data-row .val { width: 24%; color: #d8ece0; }
   .data-row .net { width: 26%; color: #a9d0bb; }
@@ -226,12 +228,12 @@ FRA<!DOCTYPE html>
   .dom-bar-fill.buy { background: #3fae78; }
   .dom-bar-fill.sell { background: #e0574a; }
 
-  .p-footer { margin-top: 24px; padding-top: 4px; }
+  .p-footer { margin-top: 44px; padding-top: 4px; }
   .p-notes { font-size: 11px; color: #9fc7ae; line-height: 1.6; }
   .p-notes b { color: #cfe9da; }
   .p-notes ul { margin: 3px 0 0 16px; }
-  .p-legal { text-align:center; margin-top: 26px; font-size: 12.5px; color: #cfe9da; }
-  .p-disclaimer { text-align:center; margin-top: 6px; font-size: 10.5px; color: #7fa892; }
+  .p-legal { text-align:center; margin-top: 34px; font-size: 12.5px; color: #cfe9da; }
+  .p-disclaimer { text-align:center; margin-top: 10px; font-size: 10.5px; color: #7fa892; }
 
   #posterScale { transform-origin: top center; }
 </style>
@@ -597,17 +599,38 @@ function render() {
 }
 
 /* ---------------- download ---------------- */
+const EXPORT_W = 1080;
+const EXPORT_H = 1920;
+const POSTER_BG = '#0a2417'; // matches poster's outer background tone, used for letterbox fill if content ratio differs
+
 document.getElementById('btnDownload').addEventListener('click', () => {
   const poster = document.getElementById('poster');
   const scaleEl = document.getElementById('posterScale');
   const prevTransform = scaleEl.style.transform;
   scaleEl.style.transform = 'none'; // export at full res
-  html2canvas(poster, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
+
+  html2canvas(poster, { scale: 3, backgroundColor: null, useCORS: true }).then(sourceCanvas => {
     scaleEl.style.transform = prevTransform;
+
+    // Fit the rendered poster into a fixed 1080x1920 canvas (contain, centered, no distortion)
+    const outCanvas = document.createElement('canvas');
+    outCanvas.width = EXPORT_W;
+    outCanvas.height = EXPORT_H;
+    const ctx = outCanvas.getContext('2d');
+    ctx.fillStyle = POSTER_BG;
+    ctx.fillRect(0, 0, EXPORT_W, EXPORT_H);
+
+    const scale = Math.min(EXPORT_W / sourceCanvas.width, EXPORT_H / sourceCanvas.height);
+    const drawW = sourceCanvas.width * scale;
+    const drawH = sourceCanvas.height * scale;
+    const offsetX = (EXPORT_W - drawW) / 2;
+    const offsetY = (EXPORT_H - drawH) / 2;
+    ctx.drawImage(sourceCanvas, offsetX, offsetY, drawW, drawH);
+
     const link = document.createElement('a');
     const dateForFile = (document.getElementById('displayDate').value || 'output').replace(/\s+/g,'_');
     link.download = `KISI_Foreign_Lens_${dateForFile}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = outCanvas.toDataURL('image/png');
     link.click();
   }).catch(() => {
     scaleEl.style.transform = prevTransform;
